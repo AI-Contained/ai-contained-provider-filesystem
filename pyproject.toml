@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "ai-contained-plugin-template"  # TODO: rename to ai-contained-plugin-<yourplugin>
+name = "ai-contained-plugin-filesystem"
 version = "0.1.0"
-description = "Hello World adventure game plugin for AI-Contained"  # TODO: update
+description = "Filesystem provider (fs_read, fs_write) for AI-Contained"
 requires-python = ">=3.12"
 dependencies = [
     "ai-contained-core-mcp",
@@ -27,7 +27,7 @@ markers = [
 ]
 
 [project.entry-points."ai_contained.plugins"]
-template = "ai_contained.plugins.template:register"  # TODO: rename to <yourplugin> = "ai_contained.plugins.<yourplugin>:register"
+filesystem = "ai_contained.plugins.filesystem:register"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/ai_contained"]
