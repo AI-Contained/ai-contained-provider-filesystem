@@ -3,8 +3,7 @@ import pytest
 from fastmcp import FastMCP
 from fastmcp.client.elicitation import ElicitResult
 
-from ai_contained.plugins.filesystem import register
-
+from ai_contained.provider.filesystem import register
 
 @pytest.fixture
 def mcp() -> FastMCP:
