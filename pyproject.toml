@@ -3,8 +3,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "ai-contained-plugin-filesystem"
-version = "0.1.0"
+name = "ai-contained-provider-filesystem"
+version = "0.0.2"
 description = "Filesystem provider (fs_read, fs_write) for AI-Contained"
 requires-python = ">=3.12"
 dependencies = [
@@ -26,8 +26,8 @@ markers = [
     "focus: run only focused tests (use with -m focus)",
 ]
 
-[project.entry-points."ai_contained.plugins"]
-filesystem = "ai_contained.plugins.filesystem:register"
+[project.entry-points."ai_contained.provider"]
+filesystem = "ai_contained.provider.filesystem:register"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/ai_contained"]
