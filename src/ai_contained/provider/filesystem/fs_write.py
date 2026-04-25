@@ -111,7 +111,7 @@ def register(mcp):
             return "\n".join(out)
 
         async def _elicit(header: str, diff: str) -> None:
-            result = await ctx.elicit(message=_elicit_msg(header, diff), response_type=str)
+            result = await ctx.elicit(message=_elicit_msg(header, diff), response_type=None)
             if result.action != "accept":
                 raise ToolError("Tool use was cancelled by the user")
 

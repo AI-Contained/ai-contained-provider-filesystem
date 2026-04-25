@@ -64,7 +64,7 @@ def register(mcp):
         root = path or os.getcwd()
 
         msg = f"Searching for files: {pattern} in {root} (using tool: glob)"
-        result = await ctx.elicit(message=msg, response_type=str)
+        result = await ctx.elicit(message=msg, response_type=None)
         if result.action != "accept":
             raise ToolError("Tool use was cancelled by the user")
 
