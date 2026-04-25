@@ -1,3 +1,5 @@
+import re
+
 import pytest
 from assertpy import assert_that
 from fastmcp.client import Client
@@ -5,12 +7,29 @@ from fastmcp.client import Client
 from conftest import make_capture_handler
 
 
+def _ls_entry(path: str) -> str:
+    # -rw-r--r-- 1 1000 1000 2 Apr 22 07:30 /path/to/file.txt
+    mode   = r"-\S+"     # e.g. -rw-r--r--
+    nlinks = r"\d+"      # e.g. 1
+    uid    = r"\d+"      # e.g. 1000
+    gid    = r"\d+"      # e.g. 1000
+    size   = r"\d+"      # e.g. 2
+    month  = r"\w+"      # e.g. Apr
+    day    = r"\d+"      # e.g. 22
+    time   = r"\d+:\d+"  # e.g. 07:30
+    return rf"{mode} +{nlinks} +{uid} +{gid} +{size} +{month} +{day} +{time} +{re.escape(path)}\n"
+
+
 @pytest.fixture(autouse=True)
 def expected(sandbox):
     value = "alpha\nbravo\ncharlie\nbravo\ndelta\n"
     subject = sandbox / "test_subject.txt"
     subject.write_text(value)
-    return {"subject": str(subject), "value": value}
+    dirtest = sandbox / "dirtest"
+    dirtest.mkdir()
+    (dirtest / "a.txt").write_text("x\n")
+    (dirtest / "b.txt").write_text("x\n")
+    return {"subject": str(subject), "value": value, "dirtest": dirtest}
 
 
 def describe_fs_read():
@@ -155,26 +174,28 @@ def describe_fs_read():
     def describe_directory_mode():
         async def it_lists_directory_entries(mcp, expected):
             h = make_capture_handler()
+            dirtest = expected["dirtest"]
             async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool("fs_read", {"operations": [{"mode": "Directory", "path": "/code/volatile/dirtest"}]})
+                result = await client.call_tool("fs_read", {"operations": [{"mode": "Directory", "path": str(dirtest)}]})
                 assert_that(result.is_error).is_false()
-                assert_that(h.messages[0]).is_equal_to("Reading directory: /code/volatile/dirtest (using tool: read, max depth: 0, max entries: 1000, excluding: defaults)")
-                assert_that(result.content[0].text).is_equal_to(
-                    "# Total entries: 2\n\n"
-                    "-rw-r--r-- 1 1000 1000 2 Apr 22 07:30 /code/volatile/dirtest/b.txt\n"
-                    "-rw-r--r-- 1 1000 1000 2 Apr 22 07:29 /code/volatile/dirtest/a.txt\n"
+                assert_that(h.messages[0]).is_equal_to(f"Reading directory: {dirtest} (using tool: read, max depth: 0, max entries: 1000, excluding: defaults)")
+                assert_that(result.content[0].text).matches(
+                    r"# Total entries: 2\n\n"
+                    + _ls_entry(str(dirtest / "b.txt"))
+                    + _ls_entry(str(dirtest / "a.txt"))
                 )
 
         async def it_lists_recursively_with_depth(mcp, expected):
             h = make_capture_handler()
+            dirtest = expected["dirtest"]
             async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool("fs_read", {"operations": [{"depth": 1, "mode": "Directory", "path": "/code/volatile/dirtest"}]})
+                result = await client.call_tool("fs_read", {"operations": [{"depth": 1, "mode": "Directory", "path": str(dirtest)}]})
                 assert_that(result.is_error).is_false()
-                assert_that(h.messages[0]).is_equal_to("Reading directory: /code/volatile/dirtest (using tool: read, max depth: 1, max entries: 1000, excluding: defaults)")
-                assert_that(result.content[0].text).is_equal_to(
-                    "# Total entries: 2\n\n"
-                    "-rw-r--r-- 1 1000 1000 2 Apr 22 07:30 /code/volatile/dirtest/b.txt\n"
-                    "-rw-r--r-- 1 1000 1000 2 Apr 22 07:29 /code/volatile/dirtest/a.txt\n"
+                assert_that(h.messages[0]).is_equal_to(f"Reading directory: {dirtest} (using tool: read, max depth: 1, max entries: 1000, excluding: defaults)")
+                assert_that(result.content[0].text).matches(
+                    r"# Total entries: 2\n\n"
+                    + _ls_entry(str(dirtest / "b.txt"))
+                    + _ls_entry(str(dirtest / "a.txt"))
                 )
 
         async def it_errors_on_nonexistent_directory(mcp, expected):
@@ -189,16 +210,18 @@ def describe_fs_read():
     def describe_batch_operations():
         async def it_reads_multiple_files_in_one_call(mcp, expected):
             h = make_capture_handler()
+            dirtest = expected["dirtest"]
+            a, b = str(dirtest / "a.txt"), str(dirtest / "b.txt")
             async with Client(transport=mcp, elicitation_handler=h) as client:
                 result = await client.call_tool("fs_read", {"operations": [
-                    {"mode": "Line", "path": "/code/volatile/dirtest/a.txt"},
-                    {"mode": "Line", "path": "/code/volatile/dirtest/b.txt"},
+                    {"mode": "Line", "path": a},
+                    {"mode": "Line", "path": b},
                 ]})
                 assert_that(result.is_error).is_false()
                 assert_that(h.messages[0]).is_equal_to(
-                    "Batch fs_read operation with 2 operations (using tool: read)\n\n"
-                    "↱ Operation 1: Reading file: /code/volatile/dirtest/a.txt, all lines\n"
-                    "↱ Operation 2: Reading file: /code/volatile/dirtest/b.txt, all lines"
+                    f"Batch fs_read operation with 2 operations (using tool: read)\n\n"
+                    f"↱ Operation 1: Reading file: {a}, all lines\n"
+                    f"↱ Operation 2: Reading file: {b}, all lines"
                 )
                 assert_that(result.content[0].text).is_equal_to(
                     "=== Operation 1 Result (Text) ===\nx\n\n"
