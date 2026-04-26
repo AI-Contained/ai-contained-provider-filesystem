@@ -364,3 +364,20 @@ def describe_fs_write():
                 assert_that(result.is_error).is_true()
                 assert_that(result.content[0].text).is_equal_to("Tool use was cancelled by the user")
                 assert_that(open(expected["subject"]).read()).is_equal_to(expected["value"])
+
+    def describe_color():
+        async def it_wraps_changed_lines_in_ansi_and_leaves_context_lines_neutral(mcp, expected, monkeypatch):
+            monkeypatch.setenv("COLOR", "ascii")
+            h = make_capture_handler()
+            async with Client(transport=mcp, elicitation_handler=h) as client:
+                result = await client.call_tool("fs_write", {"command": "str_replace", "path": expected["subject"], "old_str": "alpha\nbravo\ncharlie", "new_str": "apple\nbravo\ncookie"})
+                assert_that(result.is_error).is_false()
+                assert_that(h.messages[0]).is_equal_to(
+                    f"I'll modify the following file: {expected['subject']} (using tool: write)\n\n"
+                    "\033[31m- 1   : alpha\033[0m\n"
+                    "\033[32m+    1: apple\033[0m\n"
+                    "  2, 2: bravo\n"
+                    "\033[31m- 3   : charlie\033[0m\n"
+                    "\033[32m+    3: cookie\033[0m\n\n\n"
+                    "Allow this action? Use 't' to trust (always allow) the 'write' tool for the session. [y/n/t]:"
+                )

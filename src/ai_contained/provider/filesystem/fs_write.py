@@ -66,6 +66,15 @@ def register(mcp):
           {"command": "append", "path": "/src/hello.py", "new_str": "# end of file\n", "summary": "Add footer"}
         """
 
+        def _colorize(line: str) -> str:
+            if os.environ.get("COLOR", "ascii") != "ascii":
+                return line
+            if line.startswith("-"):
+                return f"\033[31m{line}\033[0m"
+            if line.startswith("+"):
+                return f"\033[32m{line}\033[0m"
+            return line
+
         def _elicit_msg(header: str, diff: str) -> str:
             purpose = f"\nPurpose: {summary}" if summary else ""
             return (
@@ -98,16 +107,16 @@ def register(mcp):
                         elif is_trailing:
                             lines_range = lines_range[:2]   # show first 2 lines only
                     for k in lines_range:
-                        out.append(f"  {k+1}, {j1+(k-i1)+1}: {old_lines[k]}")
+                        out.append(_colorize(f"  {k+1}, {j1+(k-i1)+1}: {old_lines[k]}"))
                 elif tag in ("replace", "delete"):
                     for k, line in enumerate(old_lines[i1:i2]):
-                        out.append(f"- {i1+k+1}   : {line}")
+                        out.append(_colorize(f"- {i1+k+1}   : {line}"))
                     if tag == "replace":
                         for k, line in enumerate(new_lines[j1:j2]):
-                            out.append(f"+    {j1+k+1}: {line}")
+                            out.append(_colorize(f"+    {j1+k+1}: {line}"))
                 elif tag == "insert":
                     for k, line in enumerate(new_lines[j1:j2]):
-                        out.append(f"+    {j1+k+1}: {line}")
+                        out.append(_colorize(f"+    {j1+k+1}: {line}"))
             return "\n".join(out)
 
         async def _elicit(header: str, diff: str) -> None:
@@ -120,7 +129,7 @@ def register(mcp):
             old_content = open(path).read() if os.path.exists(path) else None
             new_lines = file_text.splitlines()
             if old_content is None:
-                diff = "\n".join(f"+    {i+1}: {l}" for i, l in enumerate(new_lines))
+                diff = "\n".join(_colorize(f"+    {i+1}: {l}") for i, l in enumerate(new_lines))
             else:
                 diff = _unified_diff(old_content.splitlines(), new_lines)
             header = f"I'll create the following file: {path} (using tool: write)"
@@ -140,7 +149,7 @@ def register(mcp):
             # skip the empty line introduced by the prepended newline on empty files
             added_lines = [l for l in new_lines[len(old_lines):] if l]
             new_line_num = len(old_lines) + (2 if not old_lines else 1)
-            diff = "\n".join(f"+    {new_line_num + i}: {l}" for i, l in enumerate(added_lines))
+            diff = "\n".join(_colorize(f"+    {new_line_num + i}: {l}") for i, l in enumerate(added_lines))
             header = f"I'll append content to file: {path} (using tool: write)"
             await _elicit(header, diff)
             with open(path, "w") as f:
@@ -155,7 +164,7 @@ def register(mcp):
             if new_str == "" and new_content.endswith("\n"):
                 new_content = new_content[:-1]
             if count == 0:
-                diff = f"- 0   : {old_str}\n+    0: {new_str}"
+                diff = f"{_colorize(f'- 0   : {old_str}')}\n{_colorize(f'+    0: {new_str}')}"
             else:
                 diff = _unified_diff(content.splitlines(), new_content.splitlines())
             header = f"I'll modify the following file: {path} (using tool: write)"

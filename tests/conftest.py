@@ -5,6 +5,11 @@ from fastmcp.client.elicitation import ElicitResult
 
 from ai_contained.provider.filesystem import register
 
+@pytest.fixture(autouse=True)
+def _no_color(monkeypatch):
+    monkeypatch.setenv("COLOR", "")
+
+
 @pytest.fixture
 def mcp() -> FastMCP:
     server = FastMCP("test")
