@@ -1,0 +1,5 @@
+# A newline delimited list of apk packages to install
+#  For example:  You're creating a git provider, and you'll need
+#  to include 'git'
+#
+# git

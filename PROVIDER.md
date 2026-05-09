@@ -38,17 +38,17 @@ Once connected via an MCP client (e.g. claude-cli):
 ### Local Development
 
 ```bash
-pip install -e ".[dev]" --break-system-packages
+uv sync --extra dev
 ```
 
 ### Production
 
 ```bash
-pip install "ai-contained-provider-template @ git+https://github.com/AI-Contained/ai-contained-provider-template.git@main"
+uv pip install "ai-contained-provider-template @ git+https://github.com/AI-Contained/ai-contained-provider-template.git@main"
 ```
 
 ## Running Tests
 
 ```bash
-pytest -v
+uv run --extra dev pytest -v
 ```
