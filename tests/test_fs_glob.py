@@ -1,9 +1,9 @@
 import json
+
 import pytest
 from assertpy import assert_that
-from fastmcp.client import Client
-
 from conftest import make_capture_handler, make_decline_handler
+from fastmcp.client import Client
 
 
 @pytest.fixture(autouse=True)
@@ -121,7 +121,7 @@ def describe_glob():
                 assert_that(h.messages[0]).is_equal_to(f"Searching for files: **/*.txt in {expected["root"]} (using tool: glob)")
                 assert_glob_result(result, {
                     "filePaths": [],
-                    "message": f"No files found matching pattern: **/*.txt",
+                    "message": "No files found matching pattern: **/*.txt",
                     "totalFiles": 0,
                     "truncated": False,
                 })

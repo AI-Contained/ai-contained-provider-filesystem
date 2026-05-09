@@ -1,8 +1,7 @@
 import pytest
 from assertpy import assert_that
-from fastmcp.client import Client
-
 from conftest import make_capture_handler
+from fastmcp.client import Client
 
 
 @pytest.fixture(autouse=True)

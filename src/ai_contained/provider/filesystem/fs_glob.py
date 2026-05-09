@@ -24,7 +24,8 @@ def register(mcp: FastMCP) -> None:
     ) -> str:
         """Find files matching a glob pattern, respecting directory depth and result limits.
 
-        Parameters:
+        Parameters
+        ----------
           pattern    Glob pattern (required). Supports * (any chars), ** (any chars, same
                      as *), and ? (single char). Regex quantifiers (e.g. +) are NOT
                      supported. Examples: "**/*.py", "*.txt", "src/**/*.ts"
@@ -57,6 +58,7 @@ def register(mcp: FastMCP) -> None:
           - totalFiles reflects the depth-constrained count, not the global file count
           - truncated=false when limit >= totalFiles (no files are cut off)
           - File order is not guaranteed to be alphabetical
+
         """
         if not pattern:
             raise ToolError("Failed to validate tool parameters: Glob pattern cannot be empty")

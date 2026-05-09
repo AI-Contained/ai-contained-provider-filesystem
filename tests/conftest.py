@@ -1,9 +1,9 @@
-import os
 import pytest
 from fastmcp import FastMCP
 from fastmcp.client.elicitation import ElicitResult
 
 from ai_contained.provider.filesystem import register
+
 
 @pytest.fixture(autouse=True)
 def _no_color(monkeypatch):

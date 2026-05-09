@@ -2,9 +2,8 @@ import re
 
 import pytest
 from assertpy import assert_that
-from fastmcp.client import Client
-
 from conftest import make_capture_handler
+from fastmcp.client import Client
 
 
 def _ls_entry(path: str) -> str:

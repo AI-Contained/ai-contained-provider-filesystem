@@ -21,7 +21,8 @@ def register(mcp: FastMCP) -> None:
     ) -> str:
         """Create, append to, or edit a file.
 
-        Parameters:
+        Parameters
+        ----------
           command      (required) One of: "create", "append", "str_replace", "insert"
           path         (required) Absolute or relative file path. Parent directories
                        are created automatically for "create". Must exist for all other commands.
@@ -49,7 +50,8 @@ def register(mcp: FastMCP) -> None:
           - create always overwrites — use str_replace for targeted edits
           - str_replace with new_str="" strips one trailing newline from the result
 
-        Examples:
+        Examples
+        --------
           # Create a new file
           {"command": "create", "path": "/src/hello.py", "file_text": "print('hello')\n", "summary": "Add hello script"}
 
@@ -64,6 +66,7 @@ def register(mcp: FastMCP) -> None:
 
           # Append to file
           {"command": "append", "path": "/src/hello.py", "new_str": "# end of file\n", "summary": "Add footer"}
+
         """
 
         def _colorize(line: str) -> str:

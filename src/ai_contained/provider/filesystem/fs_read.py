@@ -3,7 +3,7 @@ import json
 import os
 import stat
 from datetime import datetime
-from typing import Annotated, Any, Literal
+from typing import Annotated, Literal
 
 from fastmcp import Context, FastMCP
 from fastmcp.exceptions import ToolError
@@ -42,7 +42,8 @@ def register(mcp: FastMCP) -> None:
     async def fs_read(operations: list[Operation], ctx: Context) -> str:
         """Read files, directories, and images with support for line ranges, pattern search, and batch operations.
 
-        Parameters:
+        Parameters
+        ----------
           operations  (required) List of one or more operation objects. All operations are
                       validated before any elicitation is shown — if any path is invalid,
                       the entire call fails with no elicitation fired.
@@ -86,7 +87,8 @@ def register(mcp: FastMCP) -> None:
           - Reading an empty file returns "" without error
           - Batch: one invalid operation fails the entire call — no partial results
 
-        Examples:
+        Examples
+        --------
           # Read entire file
           {"operations": [{"mode": "Line", "path": "/src/main.py"}]}
 
@@ -101,6 +103,7 @@ def register(mcp: FastMCP) -> None:
 
           # Batch: read two files in one call
           {"operations": [{"mode": "Line", "path": "/src/a.py"}, {"mode": "Line", "path": "/src/b.py"}]}
+
         """
 
         def _validate(op: Operation) -> None:
