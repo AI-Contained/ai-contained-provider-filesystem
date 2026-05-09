@@ -2,13 +2,13 @@
 import os
 from typing import Literal
 
-from fastmcp import Context
+from fastmcp import Context, FastMCP
 from fastmcp.exceptions import ToolError
 
 
-def register(mcp):
+def register(mcp: FastMCP) -> None:
 
-    @mcp.tool
+    @mcp.tool()
     async def fs_write(
         command: Literal["create", "append", "str_replace", "insert"],
         path: str,

@@ -3,11 +3,11 @@ import json
 import os
 from pathlib import Path
 
-from fastmcp import Context
+from fastmcp import Context, FastMCP
 from fastmcp.exceptions import ToolError
 
 
-def register(mcp):
+def register(mcp: FastMCP) -> None:
     # TODO: consider using ctx.info()/ctx.warning() to surface a human-readable summary
     # after returning results. Agent's UI generates these from the JSON result:
     #   ✓ Successfully found 4 files under <path>

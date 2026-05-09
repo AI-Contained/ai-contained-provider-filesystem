@@ -5,7 +5,7 @@ import stat
 from datetime import datetime
 from typing import Annotated, Any, Literal
 
-from fastmcp import Context
+from fastmcp import Context, FastMCP
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
 
@@ -36,9 +36,9 @@ class DirectoryOperation(BaseModel):
 Operation = Annotated[LineOperation | SearchOperation | DirectoryOperation, Field(discriminator="mode")]
 
 
-def register(mcp):
+def register(mcp: FastMCP) -> None:
 
-    @mcp.tool
+    @mcp.tool()
     async def fs_read(operations: list[Operation], ctx: Context) -> str:
         """Read files, directories, and images with support for line ranges, pattern search, and batch operations.
 
