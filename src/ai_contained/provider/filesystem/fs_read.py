@@ -11,6 +11,8 @@ from pydantic import BaseModel, Field
 
 
 class LineOperation(BaseModel):
+    """Parameters for a line-range read operation."""
+
     mode: Literal["Line"]
     path: str
     start_line: int | None = None
@@ -18,6 +20,8 @@ class LineOperation(BaseModel):
 
 
 class SearchOperation(BaseModel):
+    """Parameters for a pattern search operation."""
+
     mode: Literal["Search"]
     path: str
     pattern: str
@@ -25,6 +29,8 @@ class SearchOperation(BaseModel):
 
 
 class DirectoryOperation(BaseModel):
+    """Parameters for a directory listing operation."""
+
     mode: Literal["Directory"]
     path: str
     depth: int = 0
@@ -37,6 +43,7 @@ Operation = Annotated[LineOperation | SearchOperation | DirectoryOperation, Fiel
 
 
 def register(mcp: FastMCP) -> None:
+    """Register the fs_read tool with the MCP server."""
 
     @mcp.tool()
     async def fs_read(operations: list[Operation], ctx: Context) -> str:

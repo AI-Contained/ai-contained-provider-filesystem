@@ -8,6 +8,7 @@ from fastmcp.exceptions import ToolError
 
 
 def register(mcp: FastMCP) -> None:
+    """Register the fs_glob tool with the MCP server."""
     # TODO: consider using ctx.info()/ctx.warning() to surface a human-readable summary
     # after returning results. Agent's UI generates these from the JSON result:
     #   ✓ Successfully found 4 files under <path>

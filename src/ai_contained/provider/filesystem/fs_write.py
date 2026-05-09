@@ -7,6 +7,7 @@ from fastmcp.exceptions import ToolError
 
 
 def register(mcp: FastMCP) -> None:
+    """Register the fs_write tool with the MCP server."""
 
     @mcp.tool()
     async def fs_write(
@@ -19,7 +20,7 @@ def register(mcp: FastMCP) -> None:
         insert_line: int = 0,
         summary: str = "",
     ) -> str:
-        """Create, append to, or edit a file.
+        r"""Create, append to, or edit a file.
 
         Parameters
         ----------

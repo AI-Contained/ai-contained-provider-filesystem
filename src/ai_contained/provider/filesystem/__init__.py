@@ -7,6 +7,7 @@ from ai_contained.provider.filesystem.fs_write import register as _register_fs_w
 
 
 def register(mcp: FastMCP) -> None:
+    """Register filesystem tools with the MCP server."""
     _register_fs_write(mcp)
     _register_fs_read(mcp)
     _register_fs_glob(mcp)
