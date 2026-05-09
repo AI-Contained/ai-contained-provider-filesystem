@@ -1,4 +1,5 @@
 """Filesystem provider."""
+
 from fastmcp import FastMCP
 
 from ai_contained.provider.filesystem.fs_glob import register as _register_fs_glob

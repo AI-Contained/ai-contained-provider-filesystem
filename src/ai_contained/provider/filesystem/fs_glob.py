@@ -1,4 +1,5 @@
 """glob tool — find files matching a glob pattern."""
+
 import json
 import os
 from pathlib import Path
@@ -95,6 +96,13 @@ def register(mcp: FastMCP) -> None:
             truncated = False
 
         if total == 0:
-            return json.dumps({"filePaths": [], "message": f"No files found matching pattern: {pattern}", "totalFiles": 0, "truncated": False})
+            return json.dumps(
+                {
+                    "filePaths": [],
+                    "message": f"No files found matching pattern: {pattern}",
+                    "totalFiles": 0,
+                    "truncated": False,
+                }
+            )
 
         return json.dumps({"filePaths": matches, "totalFiles": total, "truncated": truncated})

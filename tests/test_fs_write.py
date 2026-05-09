@@ -32,11 +32,13 @@ def describe_fs_write():
         async def it_overwrites_existing_file(mcp, expected):
             h = make_capture_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool("fs_write", {"command": "create", "path": expected["subject"], "file_text": "replaced"})
+                result = await client.call_tool(
+                    "fs_write", {"command": "create", "path": expected["subject"], "file_text": "replaced"}
+                )
                 assert_that(result.is_error).is_false()
                 assert_that(result.content[0].text).is_equal_to("")
                 assert_that(h.messages[0]).is_equal_to(
-                    f"I'll create the following file: {expected["subject"]} (using tool: write)\n\n"
+                    f"I'll create the following file: {expected['subject']} (using tool: write)\n\n"
                     "- 1   : alpha\n"
                     "- 2   : bravo\n"
                     "- 3   : charlie\n"
@@ -92,11 +94,13 @@ def describe_fs_write():
         async def it_appends_to_file(mcp, expected):
             h = make_capture_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool("fs_write", {"command": "append", "path": expected["subject"], "new_str": "echo"})
+                result = await client.call_tool(
+                    "fs_write", {"command": "append", "path": expected["subject"], "new_str": "echo"}
+                )
                 assert_that(result.is_error).is_false()
                 assert_that(result.content[0].text).is_equal_to("")
                 assert_that(h.messages[0]).is_equal_to(
-                    f"I'll append content to file: {expected["subject"]} (using tool: write)\n\n"
+                    f"I'll append content to file: {expected['subject']} (using tool: write)\n\n"
                     "+    6: echo\n\n\n"
                     "Allow this action? Use 't' to trust (always allow) the 'write' tool for the session. [y/n/t]:"
                 )
@@ -107,11 +111,13 @@ def describe_fs_write():
                 f.write("no newline")
             h = make_capture_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool("fs_write", {"command": "append", "path": expected["subject"], "new_str": "appended"})
+                result = await client.call_tool(
+                    "fs_write", {"command": "append", "path": expected["subject"], "new_str": "appended"}
+                )
                 assert_that(result.is_error).is_false()
                 assert_that(result.content[0].text).is_equal_to("")
                 assert_that(h.messages[0]).is_equal_to(
-                    f"I'll append content to file: {expected["subject"]} (using tool: write)\n\n"
+                    f"I'll append content to file: {expected['subject']} (using tool: write)\n\n"
                     "+    2: appended\n\n\n"
                     "Allow this action? Use 't' to trust (always allow) the 'write' tool for the session. [y/n/t]:"
                 )
@@ -122,11 +128,13 @@ def describe_fs_write():
                 f.write("")
             h = make_capture_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool("fs_write", {"command": "append", "path": expected["subject"], "new_str": "first"})
+                result = await client.call_tool(
+                    "fs_write", {"command": "append", "path": expected["subject"], "new_str": "first"}
+                )
                 assert_that(result.is_error).is_false()
                 assert_that(result.content[0].text).is_equal_to("")
                 assert_that(h.messages[0]).is_equal_to(
-                    f"I'll append content to file: {expected["subject"]} (using tool: write)\n\n"
+                    f"I'll append content to file: {expected['subject']} (using tool: write)\n\n"
                     "+    2: first\n\n\n"
                     "Allow this action? Use 't' to trust (always allow) the 'write' tool for the session. [y/n/t]:"
                 )
@@ -140,16 +148,23 @@ def describe_fs_write():
             path = str(tmp_path / "ghost.txt")
             h = make_capture_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool("fs_write", {"command": "append", "path": path, "new_str": "x"}, raise_on_error=False)
+                result = await client.call_tool(
+                    "fs_write", {"command": "append", "path": path, "new_str": "x"}, raise_on_error=False
+                )
                 assert_that(result.is_error).is_true()
-                assert_that(result.content[0].text).is_equal_to("Failed to validate tool parameters: The provided path must exist in order to replace or insert contents into it")
+                assert_that(result.content[0].text).is_equal_to(
+                    "Failed to validate tool parameters: The provided path must exist in order to replace or insert contents into it"
+                )
                 assert_that(h.messages).is_empty()
 
     def describe_str_replace():
         async def it_replaces_unique_occurrence(mcp, expected):
             h = make_capture_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool("fs_write", {"command": "str_replace", "path": expected["subject"], "old_str": "charlie", "new_str": "CHARLIE"})
+                result = await client.call_tool(
+                    "fs_write",
+                    {"command": "str_replace", "path": expected["subject"], "old_str": "charlie", "new_str": "CHARLIE"},
+                )
                 assert_that(result.is_error).is_false()
                 assert_that(result.content[0].text).is_equal_to("")
                 assert_that(h.messages[0]).is_equal_to(
@@ -163,11 +178,17 @@ def describe_fs_write():
         async def it_errors_on_duplicate_occurrence(mcp, expected):
             h = make_capture_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool("fs_write", {"command": "str_replace", "path": expected["subject"], "old_str": "bravo", "new_str": "X"}, raise_on_error=False)
+                result = await client.call_tool(
+                    "fs_write",
+                    {"command": "str_replace", "path": expected["subject"], "old_str": "bravo", "new_str": "X"},
+                    raise_on_error=False,
+                )
                 assert_that(result.is_error).is_true()
-                assert_that(result.content[0].text).is_equal_to("2 occurrences of old_str were found when only 1 is expected")
+                assert_that(result.content[0].text).is_equal_to(
+                    "2 occurrences of old_str were found when only 1 is expected"
+                )
                 assert_that(h.messages[0]).is_equal_to(
-                    f"I'll modify the following file: {expected["subject"]} (using tool: write)\n\n"
+                    f"I'll modify the following file: {expected['subject']} (using tool: write)\n\n"
                     "- 2   : bravo\n"
                     "+    2: X\n\n\n"
                     "Allow this action? Use 't' to trust (always allow) the 'write' tool for the session. [y/n/t]:"
@@ -177,11 +198,15 @@ def describe_fs_write():
         async def it_errors_on_missing_occurrence(mcp, expected):
             h = make_capture_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool("fs_write", {"command": "str_replace", "path": expected["subject"], "old_str": "nonexistent", "new_str": "X"}, raise_on_error=False)
+                result = await client.call_tool(
+                    "fs_write",
+                    {"command": "str_replace", "path": expected["subject"], "old_str": "nonexistent", "new_str": "X"},
+                    raise_on_error=False,
+                )
                 assert_that(result.is_error).is_true()
-                assert_that(result.content[0].text).is_equal_to("no occurrences of \"nonexistent\" were found")
+                assert_that(result.content[0].text).is_equal_to('no occurrences of "nonexistent" were found')
                 assert_that(h.messages[0]).is_equal_to(
-                    f"I'll modify the following file: {expected["subject"]} (using tool: write)\n\n"
+                    f"I'll modify the following file: {expected['subject']} (using tool: write)\n\n"
                     "- 0   : nonexistent\n"
                     "+    0: X\n\n\n"
                     "Allow this action? Use 't' to trust (always allow) the 'write' tool for the session. [y/n/t]:"
@@ -192,19 +217,28 @@ def describe_fs_write():
             path = str(tmp_path / "ghost.txt")
             h = make_capture_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool("fs_write", {"command": "str_replace", "path": path, "old_str": "x", "new_str": "y"}, raise_on_error=False)
+                result = await client.call_tool(
+                    "fs_write",
+                    {"command": "str_replace", "path": path, "old_str": "x", "new_str": "y"},
+                    raise_on_error=False,
+                )
                 assert_that(result.is_error).is_true()
-                assert_that(result.content[0].text).is_equal_to("Failed to validate tool parameters: The provided path must exist in order to replace or insert contents into it")
+                assert_that(result.content[0].text).is_equal_to(
+                    "Failed to validate tool parameters: The provided path must exist in order to replace or insert contents into it"
+                )
                 assert_that(h.messages).is_empty()
 
         async def it_deletes_a_line_when_new_str_is_empty(mcp, expected):
             h = make_capture_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool("fs_write", {"command": "str_replace", "path": expected["subject"], "old_str": "charlie\n", "new_str": ""})
+                result = await client.call_tool(
+                    "fs_write",
+                    {"command": "str_replace", "path": expected["subject"], "old_str": "charlie\n", "new_str": ""},
+                )
                 assert_that(result.is_error).is_false()
                 assert_that(result.content[0].text).is_equal_to("")
                 assert_that(h.messages[0]).is_equal_to(
-                    f"I'll modify the following file: {expected["subject"]} (using tool: write)\n\n"
+                    f"I'll modify the following file: {expected['subject']} (using tool: write)\n\n"
                     "- 3   : charlie\n\n\n"
                     "Allow this action? Use 't' to trust (always allow) the 'write' tool for the session. [y/n/t]:"
                 )
@@ -214,11 +248,20 @@ def describe_fs_write():
         async def it_includes_summary_in_elicitation_message(mcp, expected):
             h = make_capture_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool("fs_write", {"command": "str_replace", "path": expected["subject"], "old_str": "charlie", "new_str": "CHARLIE", "summary": "Uppercase charlie for testing"})
+                result = await client.call_tool(
+                    "fs_write",
+                    {
+                        "command": "str_replace",
+                        "path": expected["subject"],
+                        "old_str": "charlie",
+                        "new_str": "CHARLIE",
+                        "summary": "Uppercase charlie for testing",
+                    },
+                )
                 assert_that(result.is_error).is_false()
                 assert_that(result.content[0].text).is_equal_to("")
                 assert_that(h.messages[0]).is_equal_to(
-                    f"I'll modify the following file: {expected["subject"]} (using tool: write)\n"
+                    f"I'll modify the following file: {expected['subject']} (using tool: write)\n"
                     "Purpose: Uppercase charlie for testing\n\n"
                     "- 3   : charlie\n"
                     "+    3: CHARLIE\n\n\n"
@@ -229,11 +272,19 @@ def describe_fs_write():
         async def it_replaces_multiline_old_str_with_context_lines(mcp, expected):
             h = make_capture_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool("fs_write", {"command": "str_replace", "path": expected["subject"], "old_str": "alpha\nbravo\ncharlie", "new_str": "apple\nbravo\ncookie"})
+                result = await client.call_tool(
+                    "fs_write",
+                    {
+                        "command": "str_replace",
+                        "path": expected["subject"],
+                        "old_str": "alpha\nbravo\ncharlie",
+                        "new_str": "apple\nbravo\ncookie",
+                    },
+                )
                 assert_that(result.is_error).is_false()
                 assert_that(result.content[0].text).is_equal_to("")
                 assert_that(h.messages[0]).is_equal_to(
-                    f"I'll modify the following file: {expected["subject"]} (using tool: write)\n\n"
+                    f"I'll modify the following file: {expected['subject']} (using tool: write)\n\n"
                     "- 1   : alpha\n"
                     "+    1: apple\n"
                     "  2, 2: bravo\n"
@@ -247,11 +298,14 @@ def describe_fs_write():
         async def it_inserts_after_given_line(mcp, expected):
             h = make_capture_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool("fs_write", {"command": "insert", "path": expected["subject"], "insert_line": 2, "new_str": "inserted"})
+                result = await client.call_tool(
+                    "fs_write",
+                    {"command": "insert", "path": expected["subject"], "insert_line": 2, "new_str": "inserted"},
+                )
                 assert_that(result.is_error).is_false()
                 assert_that(result.content[0].text).is_equal_to("")
                 assert_that(h.messages[0]).is_equal_to(
-                    f"I'll insert content into file: {expected["subject"]} (using tool: write)\n\n"
+                    f"I'll insert content into file: {expected['subject']} (using tool: write)\n\n"
                     "  1, 1: alpha\n"
                     "  2, 2: bravo\n"
                     "- 3   : charlie\n"
@@ -261,16 +315,21 @@ def describe_fs_write():
                     "Allow this action? Use 't' to trust (always allow) the 'write' tool for the session. [y/n/t]:"
                 )
                 # NOTE: insert does NOT add a newline separator — inserted text is joined directly to adjacent lines
-                assert_that(open(expected["subject"]).read()).is_equal_to("alpha\nbravo\ninsertedcharlie\nbravo\ndelta\n")
+                assert_that(open(expected["subject"]).read()).is_equal_to(
+                    "alpha\nbravo\ninsertedcharlie\nbravo\ndelta\n"
+                )
 
         async def it_inserts_at_line_zero(mcp, expected):
             h = make_capture_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool("fs_write", {"command": "insert", "path": expected["subject"], "insert_line": 0, "new_str": "prepended"})
+                result = await client.call_tool(
+                    "fs_write",
+                    {"command": "insert", "path": expected["subject"], "insert_line": 0, "new_str": "prepended"},
+                )
                 assert_that(result.is_error).is_false()
                 assert_that(result.content[0].text).is_equal_to("")
                 assert_that(h.messages[0]).is_equal_to(
-                    f"I'll insert content into file: {expected["subject"]} (using tool: write)\n\n"
+                    f"I'll insert content into file: {expected['subject']} (using tool: write)\n\n"
                     "- 1   : alpha\n"
                     "+    1: prependedalpha\n"
                     "  2, 2: bravo\n"
@@ -278,16 +337,21 @@ def describe_fs_write():
                     "Allow this action? Use 't' to trust (always allow) the 'write' tool for the session. [y/n/t]:"
                 )
                 # NOTE: same no-newline behaviour at line 0
-                assert_that(open(expected["subject"]).read()).is_equal_to("prependedalpha\nbravo\ncharlie\nbravo\ndelta\n")
+                assert_that(open(expected["subject"]).read()).is_equal_to(
+                    "prependedalpha\nbravo\ncharlie\nbravo\ndelta\n"
+                )
 
         async def it_inserts_at_last_line(mcp, expected):
             h = make_capture_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool("fs_write", {"command": "insert", "path": expected["subject"], "insert_line": 5, "new_str": "at_last_line"})
+                result = await client.call_tool(
+                    "fs_write",
+                    {"command": "insert", "path": expected["subject"], "insert_line": 5, "new_str": "at_last_line"},
+                )
                 assert_that(result.is_error).is_false()
                 assert_that(result.content[0].text).is_equal_to("")
                 assert_that(h.messages[0]).is_equal_to(
-                    f"I'll insert content into file: {expected["subject"]} (using tool: write)\n\n"
+                    f"I'll insert content into file: {expected['subject']} (using tool: write)\n\n"
                     "  2, 2: bravo\n"
                     "  3, 3: charlie\n"
                     "  4, 4: bravo\n"
@@ -295,18 +359,23 @@ def describe_fs_write():
                     "+    6: at_last_line\n\n\n"
                     "Allow this action? Use 't' to trust (always allow) the 'write' tool for the session. [y/n/t]:"
                 )
-                assert_that(open(expected["subject"]).read()).is_equal_to("alpha\nbravo\ncharlie\nbravo\ndelta\nat_last_line")
+                assert_that(open(expected["subject"]).read()).is_equal_to(
+                    "alpha\nbravo\ncharlie\nbravo\ndelta\nat_last_line"
+                )
 
         async def it_inserts_beyond_eof(mcp, expected):
             h = make_capture_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool("fs_write", {"command": "insert", "path": expected["subject"], "insert_line": 999, "new_str": "way_beyond"})
+                result = await client.call_tool(
+                    "fs_write",
+                    {"command": "insert", "path": expected["subject"], "insert_line": 999, "new_str": "way_beyond"},
+                )
                 assert_that(result.is_error).is_false()
                 assert_that(result.content[0].text).is_equal_to("")
                 # NOTE: real tool shows "+    5: way_beyond" (off-by-one display bug — delta is not removed)
                 # impl shows "+    6: way_beyond" which is the correct line number
                 assert_that(h.messages[0]).is_equal_to(
-                    f"I'll insert content into file: {expected["subject"]} (using tool: write)\n\n"
+                    f"I'll insert content into file: {expected['subject']} (using tool: write)\n\n"
                     "  2, 2: bravo\n"
                     "  3, 3: charlie\n"
                     "  4, 4: bravo\n"
@@ -314,16 +383,21 @@ def describe_fs_write():
                     "+    6: way_beyond\n\n\n"
                     "Allow this action? Use 't' to trust (always allow) the 'write' tool for the session. [y/n/t]:"
                 )
-                assert_that(open(expected["subject"]).read()).is_equal_to("alpha\nbravo\ncharlie\nbravo\ndelta\nway_beyond")
+                assert_that(open(expected["subject"]).read()).is_equal_to(
+                    "alpha\nbravo\ncharlie\nbravo\ndelta\nway_beyond"
+                )
 
         async def it_inserts_multiline_new_str(mcp, expected):
             h = make_capture_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool("fs_write", {"command": "insert", "path": expected["subject"], "insert_line": 2, "new_str": "line_a\nline_b"})
+                result = await client.call_tool(
+                    "fs_write",
+                    {"command": "insert", "path": expected["subject"], "insert_line": 2, "new_str": "line_a\nline_b"},
+                )
                 assert_that(result.is_error).is_false()
                 assert_that(result.content[0].text).is_equal_to("")
                 assert_that(h.messages[0]).is_equal_to(
-                    f"I'll insert content into file: {expected["subject"]} (using tool: write)\n\n"
+                    f"I'll insert content into file: {expected['subject']} (using tool: write)\n\n"
                     "  1, 1: alpha\n"
                     "  2, 2: bravo\n"
                     "- 3   : charlie\n"
@@ -334,32 +408,50 @@ def describe_fs_write():
                     "Allow this action? Use 't' to trust (always allow) the 'write' tool for the session. [y/n/t]:"
                 )
                 # NOTE: last line of new_str is jammed into the following line without a newline
-                assert_that(open(expected["subject"]).read()).is_equal_to("alpha\nbravo\nline_a\nline_bcharlie\nbravo\ndelta\n")
+                assert_that(open(expected["subject"]).read()).is_equal_to(
+                    "alpha\nbravo\nline_a\nline_bcharlie\nbravo\ndelta\n"
+                )
 
         async def it_errors_on_nonexistent_file(mcp, tmp_path):
             path = str(tmp_path / "ghost.txt")
             h = make_capture_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool("fs_write", {"command": "insert", "path": path, "insert_line": 1, "new_str": "x"}, raise_on_error=False)
+                result = await client.call_tool(
+                    "fs_write",
+                    {"command": "insert", "path": path, "insert_line": 1, "new_str": "x"},
+                    raise_on_error=False,
+                )
                 assert_that(result.is_error).is_true()
-                assert_that(result.content[0].text).is_equal_to("Failed to validate tool parameters: The provided path must exist in order to replace or insert contents into it")
+                assert_that(result.content[0].text).is_equal_to(
+                    "Failed to validate tool parameters: The provided path must exist in order to replace or insert contents into it"
+                )
                 assert_that(h.messages).is_empty()
 
     def describe_decline():
         async def it_returns_cancelled_and_does_not_write_when_user_declines(mcp, expected):
             from conftest import make_decline_handler
+
             h = make_decline_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool("fs_write", {"command": "create", "path": expected["subject"], "file_text": "should not be written"}, raise_on_error=False)
+                result = await client.call_tool(
+                    "fs_write",
+                    {"command": "create", "path": expected["subject"], "file_text": "should not be written"},
+                    raise_on_error=False,
+                )
                 assert_that(result.is_error).is_true()
                 assert_that(result.content[0].text).is_equal_to("Tool use was cancelled by the user")
                 assert_that(open(expected["subject"]).read()).is_equal_to(expected["value"])
 
         async def it_does_not_modify_file_when_user_declines_str_replace(mcp, expected):
             from conftest import make_decline_handler
+
             h = make_decline_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool("fs_write", {"command": "str_replace", "path": expected["subject"], "old_str": "charlie", "new_str": "CHARLIE"}, raise_on_error=False)
+                result = await client.call_tool(
+                    "fs_write",
+                    {"command": "str_replace", "path": expected["subject"], "old_str": "charlie", "new_str": "CHARLIE"},
+                    raise_on_error=False,
+                )
                 assert_that(result.is_error).is_true()
                 assert_that(result.content[0].text).is_equal_to("Tool use was cancelled by the user")
                 assert_that(open(expected["subject"]).read()).is_equal_to(expected["value"])
@@ -369,7 +461,15 @@ def describe_fs_write():
             monkeypatch.setenv("COLOR", "ascii")
             h = make_capture_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool("fs_write", {"command": "str_replace", "path": expected["subject"], "old_str": "alpha\nbravo\ncharlie", "new_str": "apple\nbravo\ncookie"})
+                result = await client.call_tool(
+                    "fs_write",
+                    {
+                        "command": "str_replace",
+                        "path": expected["subject"],
+                        "old_str": "alpha\nbravo\ncharlie",
+                        "new_str": "apple\nbravo\ncookie",
+                    },
+                )
                 assert_that(result.is_error).is_false()
                 assert_that(h.messages[0]).is_equal_to(
                     f"I'll modify the following file: {expected['subject']} (using tool: write)\n\n"

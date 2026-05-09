@@ -1,4 +1,5 @@
 """fs_write tool — create, append, str_replace, or insert content in files."""
+
 import os
 from typing import Literal
 
@@ -87,19 +88,18 @@ def register(mcp: FastMCP) -> None:
                 "Allow this action? Use 't' to trust (always allow) the 'write' tool for the session. [y/n/t]:"
             )
 
-        def _unified_diff(old_lines: list[str], new_lines: list[str], show_all_context: bool = False, insert_line: int | None = None) -> str:
+        def _unified_diff(
+            old_lines: list[str], new_lines: list[str], show_all_context: bool = False, insert_line: int | None = None
+        ) -> str:
             import difflib
+
             matcher = difflib.SequenceMatcher(None, old_lines, new_lines)
             opcodes = list(matcher.get_opcodes())
-            # classify: does the diff have changes at start, middle, or end?
-            change_indices = [i for i, (t,_,_,_,_) in enumerate(opcodes) if t != "equal"]
-            has_leading_equal = opcodes[0][0] == "equal" if opcodes else False
-            has_trailing_equal = opcodes[-1][0] == "equal" if opcodes else False
             out = []
             for idx, (tag, i1, i2, j1, j2) in enumerate(opcodes):
                 if tag == "equal":
-                    prev_change = idx > 0 and opcodes[idx-1][0] != "equal"
-                    next_change = idx < len(opcodes)-1 and opcodes[idx+1][0] != "equal"
+                    prev_change = idx > 0 and opcodes[idx - 1][0] != "equal"
+                    next_change = idx < len(opcodes) - 1 and opcodes[idx + 1][0] != "equal"
                     if not show_all_context and not (prev_change and next_change):
                         continue
                     lines_range = list(range(i1, i2))
@@ -109,18 +109,18 @@ def register(mcp: FastMCP) -> None:
                         if is_leading:
                             lines_range = lines_range[1:] if len(lines_range) > 2 else lines_range
                         elif is_trailing:
-                            lines_range = lines_range[:2]   # show first 2 lines only
+                            lines_range = lines_range[:2]  # show first 2 lines only
                     for k in lines_range:
-                        out.append(_colorize(f"  {k+1}, {j1+(k-i1)+1}: {old_lines[k]}"))
+                        out.append(_colorize(f"  {k + 1}, {j1 + (k - i1) + 1}: {old_lines[k]}"))
                 elif tag in ("replace", "delete"):
                     for k, line in enumerate(old_lines[i1:i2]):
-                        out.append(_colorize(f"- {i1+k+1}   : {line}"))
+                        out.append(_colorize(f"- {i1 + k + 1}   : {line}"))
                     if tag == "replace":
                         for k, line in enumerate(new_lines[j1:j2]):
-                            out.append(_colorize(f"+    {j1+k+1}: {line}"))
+                            out.append(_colorize(f"+    {j1 + k + 1}: {line}"))
                 elif tag == "insert":
                     for k, line in enumerate(new_lines[j1:j2]):
-                        out.append(_colorize(f"+    {j1+k+1}: {line}"))
+                        out.append(_colorize(f"+    {j1 + k + 1}: {line}"))
             return "\n".join(out)
 
         async def _elicit(header: str, diff: str) -> None:
@@ -133,7 +133,7 @@ def register(mcp: FastMCP) -> None:
             old_content = open(path).read() if os.path.exists(path) else None
             new_lines = file_text.splitlines()
             if old_content is None:
-                diff = "\n".join(_colorize(f"+    {i+1}: {l}") for i, l in enumerate(new_lines))
+                diff = "\n".join(_colorize(f"+    {i + 1}: {line}") for i, line in enumerate(new_lines))
             else:
                 diff = _unified_diff(old_content.splitlines(), new_lines)
             header = f"I'll create the following file: {path} (using tool: write)"
@@ -143,7 +143,9 @@ def register(mcp: FastMCP) -> None:
 
         elif command == "append":
             if not os.path.exists(path):
-                raise ToolError("Failed to validate tool parameters: The provided path must exist in order to replace or insert contents into it")
+                raise ToolError(
+                    "Failed to validate tool parameters: The provided path must exist in order to replace or insert contents into it"
+                )
             old_content = open(path).read()
             needs_newline = not old_content.endswith("\n")
             appended = ("\n" if needs_newline else "") + new_str
@@ -151,9 +153,9 @@ def register(mcp: FastMCP) -> None:
             old_lines = old_content.splitlines()
             new_lines = new_content.splitlines()
             # skip the empty line introduced by the prepended newline on empty files
-            added_lines = [l for l in new_lines[len(old_lines):] if l]
+            added_lines = [line for line in new_lines[len(old_lines) :] if line]
             new_line_num = len(old_lines) + (2 if not old_lines else 1)
-            diff = "\n".join(_colorize(f"+    {new_line_num + i}: {l}") for i, l in enumerate(added_lines))
+            diff = "\n".join(_colorize(f"+    {new_line_num + i}: {line}") for i, line in enumerate(added_lines))
             header = f"I'll append content to file: {path} (using tool: write)"
             await _elicit(header, diff)
             with open(path, "w") as f:
@@ -161,7 +163,9 @@ def register(mcp: FastMCP) -> None:
 
         elif command == "str_replace":
             if not os.path.exists(path):
-                raise ToolError("Failed to validate tool parameters: The provided path must exist in order to replace or insert contents into it")
+                raise ToolError(
+                    "Failed to validate tool parameters: The provided path must exist in order to replace or insert contents into it"
+                )
             content = open(path).read()
             count = content.count(old_str)
             new_content = content.replace(old_str, new_str, 1)
@@ -182,13 +186,17 @@ def register(mcp: FastMCP) -> None:
 
         elif command == "insert":
             if not os.path.exists(path):
-                raise ToolError("Failed to validate tool parameters: The provided path must exist in order to replace or insert contents into it")
+                raise ToolError(
+                    "Failed to validate tool parameters: The provided path must exist in order to replace or insert contents into it"
+                )
             content = open(path).read()
             lines = content.splitlines(keepends=True)
             pos = min(insert_line, len(lines))
             lines.insert(pos, new_str)
             new_content = "".join(lines)
-            diff = _unified_diff(content.splitlines(), new_content.splitlines(), show_all_context=True, insert_line=insert_line)
+            diff = _unified_diff(
+                content.splitlines(), new_content.splitlines(), show_all_context=True, insert_line=insert_line
+            )
             header = f"I'll insert content into file: {path} (using tool: write)"
             await _elicit(header, diff)
             with open(path, "w") as f:

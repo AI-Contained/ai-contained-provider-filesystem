@@ -1,4 +1,5 @@
 """fs_read tool — read files, directories, and search for patterns."""
+
 import json
 import os
 import stat
@@ -183,11 +184,11 @@ def register(mcp: FastMCP) -> None:
             if start > end:
                 start = end
 
-            selected = lines[start-1:end]
+            selected = lines[start - 1 : end]
             result = "".join(selected)
             # strip trailing newline for partial reads (not when reading to actual EOF)
-            reading_to_eof = (op.end_line is None or op.end_line < 0 or end >= n)
-            reading_from_start = (op.start_line is None or op.start_line == 1)
+            reading_to_eof = op.end_line is None or op.end_line < 0 or end >= n
+            reading_from_start = op.start_line is None or op.start_line == 1
             if not (reading_from_start and reading_to_eof):
                 result = result.rstrip("\n")
             return result
@@ -202,8 +203,8 @@ def register(mcp: FastMCP) -> None:
                     context = ""
                     for j in range(ctx_start, ctx_end):
                         prefix = "→" if j == i else " "
-                        context += f"{prefix} {j+1}: {lines[j].rstrip(chr(10))}\n"
-                    results.append({"line_number": i+1, "context": context})
+                        context += f"{prefix} {j + 1}: {lines[j].rstrip(chr(10))}\n"
+                    results.append({"line_number": i + 1, "context": context})
             return json.dumps(results, separators=(",", ":"), ensure_ascii=False)
 
         def _directory(op: DirectoryOperation) -> str:
@@ -219,7 +220,9 @@ def register(mcp: FastMCP) -> None:
                 for name in files:
                     entries.append(os.path.join(root, name))
 
-            entries = sorted(entries, key=lambda p: os.path.getmtime(p), reverse=True)[op.offset:op.offset + op.max_entries]
+            entries = sorted(entries, key=lambda p: os.path.getmtime(p), reverse=True)[
+                op.offset : op.offset + op.max_entries
+            ]
 
             lines = [f"# Total entries: {len(entries)}", ""]
             for entry in entries:

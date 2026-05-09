@@ -28,17 +28,21 @@ def sandbox(tmp_path, monkeypatch):
 
 def make_capture_handler():
     messages = []
+
     async def handler(message, response_type, params, context):
         messages.append(message)
         return ElicitResult(action="accept", content=None)
+
     handler.messages = messages
     return handler
 
 
 def make_decline_handler():
     messages = []
+
     async def handler(message, response_type, params, context):
         messages.append(message)
         return ElicitResult(action="decline", content=None)
+
     handler.messages = messages
     return handler
