@@ -68,7 +68,7 @@ def register(mcp: FastMCP) -> None:
         root = path or os.getcwd()
 
         # elicit (skipped when EXPERIMENTAL_ALLOW_ALL_READS is set)
-        if not os.environ.get("EXPERIMENTAL_ALLOW_ALL_READS"):
+        if not os.environ.get("EXPERIMENTAL_APPROVE_ALL_READS"):
             msg = f"Searching for files: {pattern} in {root} (using tool: glob)"
             result = await ctx.elicit(message=msg, response_type=None)
             if result.action != "accept":
