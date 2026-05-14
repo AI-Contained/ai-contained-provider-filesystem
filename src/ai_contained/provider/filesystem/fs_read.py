@@ -244,11 +244,12 @@ def register(mcp: FastMCP) -> None:
         for op in operations:
             _validate(op)
 
-        # elicit
-        msg = _elicit_msg(operations)
-        result = await ctx.elicit(message=msg, response_type=None)
-        if result.action != "accept":
-            raise ToolError("Tool use was cancelled by the user")
+        # elicit (skipped when EXPERIMENTAL_ALLOW_ALL_READS is set)
+        if not os.environ.get("EXPERIMENTAL_ALLOW_ALL_READS"):
+            msg = _elicit_msg(operations)
+            result = await ctx.elicit(message=msg, response_type=None)
+            if result.action != "accept":
+                raise ToolError("Tool use was cancelled by the user")
 
         # execute
         if len(operations) == 1:
