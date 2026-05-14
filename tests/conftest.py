@@ -8,6 +8,7 @@ from ai_contained.provider.filesystem import register
 @pytest.fixture(autouse=True)
 def _no_color(monkeypatch):
     monkeypatch.setenv("COLOR", "")
+    monkeypatch.setenv("EXPERIMENTAL_APPROVE_ALL_READS", "")
 
 
 @pytest.fixture
