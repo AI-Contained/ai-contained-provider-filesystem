@@ -12,9 +12,9 @@ def _no_color(monkeypatch):
 
 
 @pytest.fixture
-def mcp() -> FastMCP:
+async def mcp() -> FastMCP:
     server = FastMCP("test")
-    register(server)
+    await register(server)
     return server
 
 
