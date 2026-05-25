@@ -210,24 +210,6 @@ def describe_fs_write():
                 )
                 assert_that(open(expected["subject"]).read()).is_equal_to(expected["value"])
 
-        async def it_errors_on_missing_occurrence(mcp, expected):
-            h = make_capture_handler()
-            async with Client(transport=mcp, elicitation_handler=h) as client:
-                result = await client.call_tool(
-                    "fs_write",
-                    {"command": "str_replace", "path": expected["subject"], "old_str": "nonexistent", "new_str": "X"},
-                    raise_on_error=False,
-                )
-                assert_that(result.is_error).is_true()
-                assert_that(result.content[0].text).is_equal_to('no occurrences of "nonexistent" were found')
-                assert_that(h.messages[0]).is_equal_to(
-                    f"I'll modify the following file: {expected['subject']} (using tool: write)\n\n"
-                    "- 0   : nonexistent\n"
-                    "+    0: X\n\n\n"
-                    "Allow this action? Use 't' to trust (always allow) the 'write' tool for the session. [y/n/t]:"
-                )
-                assert_that(open(expected["subject"]).read()).is_equal_to(expected["value"])
-
         async def it_errors_when_old_str_is_not_found(mcp, expected):
             h = make_capture_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
