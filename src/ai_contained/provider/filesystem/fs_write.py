@@ -168,19 +168,16 @@ async def register(mcp: FastMCP) -> None:
                 )
             content = open(path).read()
             count = content.count(old_str)
+            if count == 0:
+                raise ToolError("no occurrences of 'old_str' were found")
+            elif count > 1:
+                raise ToolError(f"{count} occurrences of old_str were found when only 1 is expected")
             new_content = content.replace(old_str, new_str, 1)
             if new_str == "" and new_content.endswith("\n"):
                 new_content = new_content[:-1]
-            if count == 0:
-                diff = f"{_colorize(f'- 0   : {old_str}')}\n{_colorize(f'+    0: {new_str}')}"
-            else:
-                diff = _unified_diff(content.splitlines(), new_content.splitlines())
+            diff = _unified_diff(content.splitlines(), new_content.splitlines())
             header = f"I'll modify the following file: {path} (using tool: write)"
             await _elicit(header, diff)
-            if count == 0:
-                raise ToolError(f'no occurrences of "{old_str}" were found')
-            if count > 1:
-                raise ToolError(f"{count} occurrences of old_str were found when only 1 is expected")
             with open(path, "w") as f:
                 f.write(new_content)
 
