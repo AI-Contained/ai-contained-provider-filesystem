@@ -228,6 +228,24 @@ def describe_fs_write():
                 )
                 assert_that(open(expected["subject"]).read()).is_equal_to(expected["value"])
 
+        async def it_errors_when_old_str_is_not_found(mcp, expected):
+            h = make_capture_handler()
+            async with Client(transport=mcp, elicitation_handler=h) as client:
+                result = await client.call_tool(
+                    "fs_write",
+                    {
+                        "command": "str_replace",
+                        "path": expected["subject"],
+                        "old_str": "alpha\nMISSING\ncharlie",
+                        "new_str": "alpha\nreplaced\ncharlie",
+                    },
+                    raise_on_error=False,
+                )
+                assert_that(result.is_error).is_true()
+                assert_that(result.content[0].text).is_equal_to("no occurrences of 'old_str' were found")
+                assert_that(h.messages).is_empty()
+
+
         async def it_errors_on_nonexistent_file(mcp, tmp_path):
             path = str(tmp_path / "ghost.txt")
             h = make_capture_handler()
