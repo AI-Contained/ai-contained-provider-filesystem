@@ -43,7 +43,7 @@ class DirectoryOperation(BaseModel):
 Operation = Annotated[LineOperation | SearchOperation | DirectoryOperation, Field(discriminator="mode")]
 
 
-def register(mcp: FastMCP) -> None:
+async def register(mcp: FastMCP) -> None:
     """Register the fs_read tool with the MCP server."""
 
     @mcp.tool()

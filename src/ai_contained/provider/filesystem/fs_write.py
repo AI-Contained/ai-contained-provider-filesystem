@@ -7,7 +7,7 @@ from fastmcp import Context, FastMCP
 from fastmcp.exceptions import ToolError
 
 
-def register(mcp: FastMCP) -> None:
+async def register(mcp: FastMCP) -> None:
     """Register the fs_write tool with the MCP server."""
 
     @mcp.tool()

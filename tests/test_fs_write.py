@@ -141,6 +141,20 @@ def describe_fs_write():
                 # NOTE: empty file gets a spurious leading newline — appended content lands on line 2
                 assert_that(open(expected["subject"]).read()).is_equal_to("\nfirst")
 
+        async def it_errors_when_new_str_is_missing(mcp, expected):
+            h = make_capture_handler()
+            async with Client(transport=mcp, elicitation_handler=h) as client:
+                result = await client.call_tool(
+                    "fs_write", {"command": "append", "path": expected["subject"], "file_text": "echo"},
+                    raise_on_error=False,
+                )
+                assert_that(result.is_error).is_true()
+                assert_that(result.content[0].text).is_equal_to(
+                    "Failed to validate tool parameters: append requires new_str"
+                )
+                assert_that(h.messages).is_empty()
+                assert_that(open(expected["subject"]).read()).is_equal_to(expected["value"])
+
         async def it_errors_on_nonexistent_file(mcp, tmp_path):
             # NOTE: real CLI crashes with Rust panic — no result returned
             # "Agent is having trouble responding right now: failed to print tool, `fs_write`: No such file or directory"
@@ -158,6 +172,7 @@ def describe_fs_write():
                 assert_that(h.messages).is_empty()
 
     def describe_str_replace():
+
         async def it_replaces_unique_occurrence(mcp, expected):
             h = make_capture_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
@@ -227,6 +242,21 @@ def describe_fs_write():
                     "Failed to validate tool parameters: The provided path must exist in order to replace or insert contents into it"
                 )
                 assert_that(h.messages).is_empty()
+
+        async def it_errors_when_old_str_is_missing(mcp, expected):
+            h = make_capture_handler()
+            async with Client(transport=mcp, elicitation_handler=h) as client:
+                result = await client.call_tool(
+                    "fs_write",
+                    {"command": "str_replace", "path": expected["subject"], "new_str": "replacement"},
+                    raise_on_error=False,
+                )
+                assert_that(result.is_error).is_true()
+                assert_that(result.content[0].text).is_equal_to(
+                    "Failed to validate tool parameters: str_replace requires old_str"
+                )
+                assert_that(h.messages).is_empty()
+                assert_that(open(expected["subject"]).read()).is_equal_to(expected["value"])
 
         async def it_deletes_a_line_when_new_str_is_empty(mcp, expected):
             h = make_capture_handler()
@@ -426,6 +456,21 @@ def describe_fs_write():
                     "Failed to validate tool parameters: The provided path must exist in order to replace or insert contents into it"
                 )
                 assert_that(h.messages).is_empty()
+
+        async def it_errors_when_new_str_is_missing(mcp, expected):
+            h = make_capture_handler()
+            async with Client(transport=mcp, elicitation_handler=h) as client:
+                result = await client.call_tool(
+                    "fs_write",
+                    {"command": "insert", "path": expected["subject"], "insert_line": 2},
+                    raise_on_error=False,
+                )
+                assert_that(result.is_error).is_true()
+                assert_that(result.content[0].text).is_equal_to(
+                    "Failed to validate tool parameters: insert requires new_str"
+                )
+                assert_that(h.messages).is_empty()
+                assert_that(open(expected["subject"]).read()).is_equal_to(expected["value"])
 
     def describe_decline():
         async def it_returns_cancelled_and_does_not_write_when_user_declines(mcp, expected):
