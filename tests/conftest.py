@@ -13,6 +13,7 @@ def _no_color(monkeypatch):
 
 @pytest.fixture
 async def mcp() -> FastMCP:
+    """Create a FastMCP server with the template provider registered."""
     server = FastMCP("test")
     await register(server)
     return server
