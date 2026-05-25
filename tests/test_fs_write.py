@@ -145,7 +145,8 @@ def describe_fs_write():
             h = make_capture_handler()
             async with Client(transport=mcp, elicitation_handler=h) as client:
                 result = await client.call_tool(
-                    "fs_write", {"command": "append", "path": expected["subject"], "file_text": "echo"},
+                    "fs_write",
+                    {"command": "append", "path": expected["subject"], "file_text": "echo"},
                     raise_on_error=False,
                 )
                 assert_that(result.is_error).is_true()
@@ -221,7 +222,6 @@ def describe_fs_write():
                 assert_that(result.is_error).is_true()
                 assert_that(result.content[0].text).is_equal_to("no occurrences of 'old_str' were found")
                 assert_that(h.messages).is_empty()
-
 
         async def it_errors_on_nonexistent_file(mcp, tmp_path):
             path = str(tmp_path / "ghost.txt")
