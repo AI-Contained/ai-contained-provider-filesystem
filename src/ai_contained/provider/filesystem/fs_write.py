@@ -128,6 +128,13 @@ async def register(mcp: FastMCP) -> None:
             if result.action != "accept":
                 raise ToolError("Tool use was cancelled by the user")
 
+        if command == "append" and not new_str:
+            raise ToolError("Failed to validate tool parameters: append requires new_str")
+        elif command == "str_replace" and not old_str:
+            raise ToolError("Failed to validate tool parameters: str_replace requires old_str")
+        elif command == "insert" and not new_str:
+            raise ToolError("Failed to validate tool parameters: insert requires new_str")
+
         if command == "create":
             os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
             old_content = open(path).read() if os.path.exists(path) else None

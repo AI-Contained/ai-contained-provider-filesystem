@@ -202,12 +202,7 @@ def describe_fs_write():
                 assert_that(result.content[0].text).is_equal_to(
                     "2 occurrences of old_str were found when only 1 is expected"
                 )
-                assert_that(h.messages[0]).is_equal_to(
-                    f"I'll modify the following file: {expected['subject']} (using tool: write)\n\n"
-                    "- 2   : bravo\n"
-                    "+    2: X\n\n\n"
-                    "Allow this action? Use 't' to trust (always allow) the 'write' tool for the session. [y/n/t]:"
-                )
+                assert_that(h.messages).is_empty()
                 assert_that(open(expected["subject"]).read()).is_equal_to(expected["value"])
 
         async def it_errors_when_old_str_is_not_found(mcp, expected):
