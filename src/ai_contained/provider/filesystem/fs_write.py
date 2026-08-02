@@ -3,14 +3,17 @@
 import os
 from typing import Literal
 
-from fastmcp import Context, FastMCP
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 
+from ai_contained.core.mcp import ProviderContext
 
-async def register(mcp: FastMCP) -> None:
+
+async def register(ctx: ProviderContext) -> None:
     """Register the fs_write tool with the MCP server."""
+    environ = ctx.environ
 
-    @mcp.tool()
+    @ctx.mcp.tool()
     async def fs_write(
         command: Literal["create", "append", "str_replace", "insert"],
         path: str,
@@ -72,7 +75,7 @@ async def register(mcp: FastMCP) -> None:
         """
 
         def _colorize(line: str) -> str:
-            if os.environ.get("COLOR", "ascii") != "ascii":
+            if environ.get("COLOR", "ascii") != "ascii":
                 return line
             if line.startswith("-"):
                 return f"\033[31m{line}\033[0m"
