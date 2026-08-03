@@ -4,12 +4,17 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ai-contained-provider-filesystem"
-version = "0.0.4"
+version = "0.0.5"
 description = "Filesystem provider (fs_read, fs_write) for AI-Contained"
 requires-python = ">=3.12"
 dependencies = [
-    "ai-contained-core-mcp @ https://github.com/AI-Contained/ai-contained-base/archive/refs/tags/v0.3.1.zip#subdirectory=packages/core-mcp",
+    "ai-contained-core-mcp>=0.4.0",
 ]
+
+# Fallback source — only consulted when nothing else already satisfies the name in
+# the current resolve (e.g. a sibling /opt/ directory in a monolithic image build).
+[tool.uv.sources]
+ai-contained-core-mcp = { url = "https://github.com/AI-Contained/ai-contained-base/archive/refs/tags/v0.4.0.zip", subdirectory = "packages/core-mcp" }
 
 [project.optional-dependencies]
 dev = [
@@ -29,7 +34,7 @@ markers = [
 ]
 
 [project.entry-points."ai_contained.provider"]
-filesystem = "ai_contained.provider.filesystem:register"
+filesystem = "ai_contained.provider.filesystem:provide"
 
 [tool.ruff]
 line-length = 120

@@ -6,9 +6,11 @@ import stat
 from datetime import datetime
 from typing import Annotated, Literal
 
-from fastmcp import Context, FastMCP
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 from pydantic import BaseModel, Field
+
+from ai_contained.core.mcp import ProviderContext
 
 
 class LineOperation(BaseModel):
@@ -43,10 +45,11 @@ class DirectoryOperation(BaseModel):
 Operation = Annotated[LineOperation | SearchOperation | DirectoryOperation, Field(discriminator="mode")]
 
 
-async def register(mcp: FastMCP) -> None:
+async def register(ctx: ProviderContext) -> None:
     """Register the fs_read tool with the MCP server."""
+    environ = ctx.environ
 
-    @mcp.tool()
+    @ctx.mcp.tool()
     async def fs_read(operations: list[Operation], ctx: Context) -> str:
         """Read files, directories, and images with support for line ranges, pattern search, and batch operations.
 
@@ -245,7 +248,7 @@ async def register(mcp: FastMCP) -> None:
             _validate(op)
 
         # elicit (skipped when EXPERIMENTAL_ALLOW_ALL_READS is set)
-        if not os.environ.get("EXPERIMENTAL_APPROVE_ALL_READS"):
+        if not environ.get("EXPERIMENTAL_APPROVE_ALL_READS"):
             msg = _elicit_msg(operations)
             result = await ctx.elicit(message=msg, response_type=None)
             if result.action != "accept":

@@ -4,19 +4,22 @@ import json
 import os
 from pathlib import Path
 
-from fastmcp import Context, FastMCP
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 
+from ai_contained.core.mcp import ProviderContext
 
-async def register(mcp: FastMCP) -> None:
+
+async def register(ctx: ProviderContext) -> None:
     """Register the fs_glob tool with the MCP server."""
     # TODO: consider using ctx.info()/ctx.warning() to surface a human-readable summary
     # after returning results. Agent's UI generates these from the JSON result:
     #   ✓ Successfully found 4 files under <path>
     #   ✓ Successfully found 4 files under <path> (result is truncated)
     #   ❗ No files found matching pattern: <pattern> under <path>
+    environ = ctx.environ
 
-    @mcp.tool(name="fs_glob")
+    @ctx.mcp.tool(name="fs_glob")
     async def fs_glob(
         pattern: str,
         ctx: Context,
@@ -68,7 +71,7 @@ async def register(mcp: FastMCP) -> None:
         root = path or os.getcwd()
 
         # elicit (skipped when EXPERIMENTAL_ALLOW_ALL_READS is set)
-        if not os.environ.get("EXPERIMENTAL_APPROVE_ALL_READS"):
+        if not environ.get("EXPERIMENTAL_APPROVE_ALL_READS"):
             msg = f"Searching for files: {pattern} in {root} (using tool: glob)"
             result = await ctx.elicit(message=msg, response_type=None)
             if result.action != "accept":

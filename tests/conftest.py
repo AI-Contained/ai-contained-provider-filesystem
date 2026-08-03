@@ -1,8 +1,11 @@
+import os
+
 import pytest
 from fastmcp import FastMCP
 from fastmcp.client.elicitation import ElicitResult
 
-from ai_contained.provider.filesystem import register
+from ai_contained.core.mcp import ProviderContext
+from ai_contained.provider.filesystem import provide
 
 
 @pytest.fixture(autouse=True)
@@ -15,7 +18,7 @@ def _no_color(monkeypatch):
 async def mcp() -> FastMCP:
     """Create a FastMCP server with the template provider registered."""
     server = FastMCP("test")
-    await register(server)
+    await provide(ProviderContext(server, os.environ))
     return server
 
 
