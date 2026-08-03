@@ -3,13 +3,18 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "ai-contained-provider-template"  # TODO: rename to ai-contained-provider-<yourprovider>
-version = "0.0.2"
-description = "Hello World adventure game provider for AI-Contained"  # TODO: update
+name = "ai-contained-provider-filesystem"
+version = "0.0.5"
+description = "Filesystem provider (fs_read, fs_write) for AI-Contained"
 requires-python = ">=3.12"
 dependencies = [
-    "ai-contained-core-mcp @ https://github.com/AI-Contained/ai-contained-base/archive/refs/tags/v0.2.0.zip#subdirectory=packages/core-mcp",
+    "ai-contained-core-mcp>=0.4.0",
 ]
+
+# Fallback source — only consulted when nothing else already satisfies the name in
+# the current resolve (e.g. a sibling /opt/ directory in a monolithic image build).
+[tool.uv.sources]
+ai-contained-core-mcp = { url = "https://github.com/AI-Contained/ai-contained-base/archive/refs/tags/v0.4.0.zip", subdirectory = "packages/core-mcp" }
 
 [project.optional-dependencies]
 dev = [
@@ -29,14 +34,17 @@ markers = [
 ]
 
 [project.entry-points."ai_contained.provider"]
-template = "ai_contained.provider.template:register"  # TODO: rename to <yourprovider> = "ai_contained.provider.<yourprovider>:register"
+filesystem = "ai_contained.provider.filesystem:provide"
 
 [tool.ruff]
 line-length = 120
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "D"]
-ignore = ["D203", "D213"]  # conflict with D211/D212
+# D203/D213: conflict with D211/D212
+# D417: ctx is an MCP internal parameter, not user-visible — skipping arg docs
+# E501: this is AI-generated reference code; long lines appear in docstring examples and are not enforced
+ignore = ["D203", "D213", "D417", "E501"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["ai_contained"]

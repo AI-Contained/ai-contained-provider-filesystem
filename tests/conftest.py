@@ -1,32 +1,53 @@
-from collections.abc import AsyncGenerator, Generator
+import os
 
 import pytest
 from fastmcp import FastMCP
-from fastmcp.client import Client
-from fastmcp.client.transports import FastMCPTransport
+from fastmcp.client.elicitation import ElicitResult
 
-from ai_contained.core.mcp.testing import Elicitor
-from ai_contained.provider.template import register
+from ai_contained.core.mcp import ProviderContext
+from ai_contained.provider.filesystem import provide
+
+
+@pytest.fixture(autouse=True)
+def _no_color(monkeypatch):
+    monkeypatch.setenv("COLOR", "")
+    monkeypatch.setenv("EXPERIMENTAL_APPROVE_ALL_READS", "")
 
 
 @pytest.fixture
-def mcp() -> FastMCP:
+async def mcp() -> FastMCP:
     """Create a FastMCP server with the template provider registered."""
     server = FastMCP("test")
-    register(server)
+    await provide(ProviderContext(server, os.environ))
     return server
 
 
 @pytest.fixture
-def elicitor() -> Generator[Elicitor, None, None]:
-    """Provide an Elicitor and assert all queued steps were consumed."""
-    e = Elicitor()
-    yield e
-    assert not e._queue, f"{len(e._queue)} elicitation step(s) were never triggered"
+def sandbox(tmp_path, monkeypatch):
+    """Isolated temp directory, chdir'd into for each test. Returns root as pathlib.Path."""
+    root = tmp_path / "root"
+    root.mkdir()
+    monkeypatch.chdir(root)
+    return root
 
 
-@pytest.fixture
-async def client(mcp: FastMCP, elicitor: Elicitor) -> AsyncGenerator[Client[FastMCPTransport], None]:
-    """Provide a connected MCP client wired to the elicitor."""
-    async with Client(transport=mcp, elicitation_handler=elicitor) as c:
-        yield c
+def make_capture_handler():
+    messages = []
+
+    async def handler(message, response_type, params, context):
+        messages.append(message)
+        return ElicitResult(action="accept", content=None)
+
+    handler.messages = messages
+    return handler
+
+
+def make_decline_handler():
+    messages = []
+
+    async def handler(message, response_type, params, context):
+        messages.append(message)
+        return ElicitResult(action="decline", content=None)
+
+    handler.messages = messages
+    return handler
